@@ -465,7 +465,7 @@ checkUser() {
         then
             /sbin/runuser - $RUN_AS_USER -c "\"$REALPATH\" $2"
         else
-            su - $RUN_AS_USER -c "\"$REALPATH\" $2"
+            su - $RUN_AS_USER -s "/bin/sh" -c "\"$REALPATH\" $2"
         fi
 
         # Now that we are the original user again, we may need to clean up the lock file.

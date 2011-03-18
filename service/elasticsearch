@@ -86,6 +86,10 @@ WAIT_FOR_STARTED_TIMEOUT=120
 #  port needs to be allocated prior to the user being changed.
 #RUN_AS_USER=
 
+# Specify the number of open files ulimit for the above user
+# recommended value: 32000
+#ULIMIT_N=
+
 # By default we show a detailed usage block.  Uncomment to show brief usage.
 #BRIEF_USAGE=true
 
@@ -556,6 +560,12 @@ checkUser() {
             shift
         done
 
+        # Set ulimit if specified.
+        if [ "X$ULIMIT_N" != "X" ]
+            then
+            ulimit -n $ULIMIT_N
+        fi
+        
         # Use "runuser" if this exists.  runuser should be used on RedHat in preference to su.
         #
         if test -f "/sbin/runuser"

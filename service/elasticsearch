@@ -265,7 +265,7 @@ then
     APP_PLIST=${APP_PLIST_BASE}.plist
 else
     DIST_ARCH=
-    DIST_ARCH=`uname -p 2>/dev/null | tr '[A-Z]' '[a-z]' | tr -d ' '`
+#    DIST_ARCH=`uname -p 2>/dev/null | tr '[A-Z]' '[a-z]' | tr -d ' '`
     if [ "X$DIST_ARCH" = "X" ]
     then
         DIST_ARCH="unknown"

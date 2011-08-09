@@ -205,6 +205,7 @@ COMMANDFILE="$PIDDIR/$APP_NAME.command"
 STATUSFILE="$PIDDIR/$APP_NAME.status"
 JAVASTATUSFILE="$PIDDIR/$APP_NAME.java.status"
 PIDFILE="$PIDDIR/$APP_NAME.pid"
+
 LOCKDIR="/var/lock/subsys"
 LOCKFILE="$LOCKDIR/$APP_NAME"
 pid=""
@@ -572,7 +573,7 @@ checkUser() {
             /sbin/runuser - $RUN_AS_USER -c "\"$REALPATH\" $ADDITIONAL_PARA"
         else
 	        # CHANGE: Changed from wrapper script: Added -s "/bin/sh" to force the script type
-            su - $RUN_AS_USER -s "/bin/sh" -c "\"$REALPATH\" $ADDITIONAL_PARA"
+            su $RUN_AS_USER -s "/bin/sh" -c "\"$REALPATH\" $ADDITIONAL_PARA" -
         fi
 
         # Now that we are the original user again, we may need to clean up the lock file.

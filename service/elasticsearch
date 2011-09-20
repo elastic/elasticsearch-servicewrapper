@@ -984,6 +984,45 @@ status() {
     fi
 }
 
+
+detect_linux_distro() {
+    DISTRO=`lsb_release -s -i 2>/dev/null`
+    case "$DISTRO" in
+        Gentoo*)
+            DISTRO="Gentoo"
+            ;;
+        RedHat*)
+            DISTRO="RedHat"
+            ;;
+        Fedora*)
+            DISTRO="Fedora"
+            ;;
+        SUSE*|SuSE*)
+            DISTRO="SuSE"
+            ;;
+        Ubuntu*)
+            DISTRO="Ubuntu"
+            ;;
+        *)
+            DISTRO=""
+    esac
+    if [ -z "$DISTRO" ]; then
+        if [ -f /etc/gentoo-release ]; then
+            DISTRO="Gentoo"
+        elif [ -f /etc/redhat-release -o -f /etc/redhat_version ]; then
+            DISTRO="RedHat"
+        elif [ -f /etc/fedora-release ]; then
+            DISTRO="Fedora"
+        elif [ -f /etc/SuSE-release ] ; then
+            DISTRO="SuSE"
+        else
+            DISTRO="Linux"
+        fi
+    fi
+    eval echo "Detected $DISTRO"
+}
+
+
 installdaemon() {
     if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then
         eval echo  'Must be root to perform this action.'
@@ -1002,53 +1041,39 @@ installdaemon() {
                 ln -s "/etc/init.d/$APP_NAME" "/etc/rc3.d/S20$APP_NAME_LOWER"
             fi
         elif [ "$DIST_OS" = "linux" ] ; then
-            if [ -f /etc/redhat-release -o -f /etc/redhat_version -o -f /etc/fedora-release ]  ; then
-                eval echo  'Detected RHEL or Fedora:'                  
-                if [ -f "/etc/init.d/$APP_NAME" ] ; then
-                    eval echo  ' The $APP_LONG_NAME daemon is already installed.'
-                    exit 1
-                else
-                    eval echo  ' Installing the $APP_LONG_NAME daemon..'
-                    ln -s "$REALPATH" "/etc/init.d/$APP_NAME"
+            if [ -f "/etc/init.d/$APP_NAME" ] ; then
+                eval echo  ' The $APP_LONG_NAME daemon is already installed.'
+                exit 1
+            fi
+            detect_linux_distro
+            eval echo  ' Installing the $APP_LONG_NAME daemon..'
+            ln -s "$REALPATH" "/etc/init.d/$APP_NAME"
+            case "$DISTRO" in
+                Gentoo)
+                    rc-update add "$APP_NAME" default
+                    ;;
+                RedHat|Fedora)
                     /sbin/chkconfig --add "$APP_NAME"
                     /sbin/chkconfig "$APP_NAME" on
-                fi
-            elif [ -f /etc/SuSE-release ] ; then
-                eval echo  'Detected SuSE or SLES:'
-                if [ -f "/etc/init.d/$APP_NAME" ] ; then
-                    eval echo  ' The $APP_LONG_NAME daemon is already installed.'
-                    exit 1
-                else
-                    eval echo  ' Installing the $APP_LONG_NAME daemon..'
-                    ln -s "$REALPATH" "/etc/init.d/$APP_NAME"
+                    ;;
+                SuSE)
                     insserv "/etc/init.d/$APP_NAME"
-                fi
-            elif [ -f /etc/lsb-release ] ; then
-                eval echo  'Detected Ubuntu:'
-                if [ -f "/etc/init.d/$APP_NAME" ] ; then
-                    eval echo  ' The $APP_LONG_NAME daemon is already installed.'
-                    exit 1
-                else
-                    eval echo  ' Installing the $APP_LONG_NAME daemon..'
-                    ln -s "$REALPATH" "/etc/init.d/$APP_NAME"
+                    ;;
+                Ubuntu)
                     update-rc.d "$APP_NAME" defaults
-                fi
-            else
-                eval echo  'Detected Linux:'
-                if [ -f "/etc/init.d/$APP_NAME" ] ; then
-                    eval echo  ' The $APP_LONG_NAME daemon is already installed.'
-                    exit 1
-                else
-                    eval echo  ' Installing the $APP_LONG_NAME daemon..'
-                    ln -s "$REALPATH" /etc/init.d/$APP_NAME
+                    ;;
+                Linux)
                     ln -s "/etc/init.d/$APP_NAME" "/etc/rc3.d/K20$APP_NAME_LOWER"
                     ln -s "/etc/init.d/$APP_NAME" "/etc/rc3.d/S20$APP_NAME_LOWER"
                     ln -s "/etc/init.d/$APP_NAME" "/etc/rc5.d/S20$APP_NAME_LOWER"
                     ln -s "/etc/init.d/$APP_NAME" "/etc/rc5.d/K20$APP_NAME_LOWER"
-                fi
-            fi
-        elif [ "$DIST_OS" = "hpux" ] ; then     
-            eval echo  'Detected HP-UX:'          
+                    ;;
+                *)
+                    echo "Oops - unknown distro '$DISTRO'"
+                    ;;
+            esac
+        elif [ "$DIST_OS" = "hpux" ] ; then
+            eval echo  'Detected HP-UX:'
             if [ -f "/sbin/init.d/$APP_NAME" ] ; then
                 eval echo  ' The $APP_LONG_NAME daemon is already installed.'
                 exit 1
@@ -1181,50 +1206,37 @@ removedaemon() {
                 exit 1
             fi
         elif [ "$DIST_OS" = "linux" ] ; then
-            if [ -f /etc/redhat-release -o -f /etc/redhat_version -o -f /etc/fedora-release ] ; then
-                eval echo  'Detected RHEL or Fedora:'
-                if [ -f "/etc/init.d/$APP_NAME" ] ; then
-                    eval echo  ' Removing $APP_LONG_NAME daemon...'
+            if [ ! -f "/etc/init.d/$APP_NAME" ] ; then
+                eval echo  ' The $APP_LONG_NAME daemon is not currently installed.'
+                exit 1
+            fi
+            detect_linux_distro
+            eval echo  ' Removing $APP_LONG_NAME daemon...'
+            case "$DISTRO" in
+                Gentoo)
+                    rc-update del "$APP_NAME" default
+                    ;;
+                RedHat|Fedora)
                     /sbin/chkconfig "$APP_NAME" off
                     /sbin/chkconfig --del "$APP_NAME"
-                    rm -f "/etc/init.d/$APP_NAME"
-                else
-                    eval echo  ' The $APP_LONG_NAME daemon is not currently installed.'
-                    exit 1
-                fi
-            elif [ -f /etc/SuSE-release ] ; then
-                eval echo  'Detected SuSE or SLES:'
-                if [ -f "/etc/init.d/$APP_NAME" ] ; then
-                    eval echo  ' Removing $APP_LONG_NAME daemon...'
+                    ;;
+                SuSE)
                     insserv -r "/etc/init.d/$APP_NAME"
-                    rm -f "/etc/init.d/$APP_NAME"
-                else
-                    eval echo  ' The $APP_LONG_NAME daemon is not currently installed.'
-                    exit 1
-                fi
-            elif [ -f /etc/lsb-release ] ; then
-                eval echo  'Detected Ubuntu:'
-                if [ -f "/etc/init.d/$APP_NAME" ] ; then
-                    eval echo  ' Removing $APP_LONG_NAME daemon...'
+                    ;;
+                Ubuntu)
                     update-rc.d -f "$APP_NAME" remove
-                    rm -f "/etc/init.d/$APP_NAME"
-                else
-                    eval echo  ' The $APP_LONG_NAME daemon is not currently installed.'
-                    exit 1
-                fi
-            else
-                eval echo  'Detected Linux:'
-                if [ -f "/etc/init.d/$APP_NAME" ] ; then
-                    eval echo  ' Removing $APP_LONG_NAME daemon...'
-                    for i in "/etc/rc3.d/K20$APP_NAME_LOWER" "/etc/rc5.d/K20$APP_NAME_LOWER" "/etc/rc3.d/S20$APP_NAME_LOWER" "/etc/init.d/$APP_NAME" "/etc/rc5.d/S20$APP_NAME_LOWER"
-                    do
-                        rm -f $i
-                    done
-                else
-                    eval echo  ' The $APP_LONG_NAME daemon is not currently installed.'
-                    exit 1
-                fi
-            fi
+                    ;;
+                Linux)
+                    rm -f "/etc/rc3.d/K20$APP_NAME_LOWER"
+                    rm -f "/etc/rc3.d/S20$APP_NAME_LOWER"
+                    rm -f "/etc/rc5.d/S20$APP_NAME_LOWER"
+                    rm -f "/etc/rc5.d/K20$APP_NAME_LOWER"
+                    ;;
+                *)
+                    echo "Oops - unknown distro '$DISTRO'"
+                    ;;
+            esac
+            rm -f "/etc/init.d/$APP_NAME"
         elif [ "$DIST_OS" = "hpux" ] ; then
             eval echo  'Detected HP-UX:'
             if [ -f "/sbin/init.d/$APP_NAME" ] ; then

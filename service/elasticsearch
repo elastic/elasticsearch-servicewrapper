@@ -565,7 +565,10 @@ checkUser() {
             then
             ulimit -n $ULIMIT_N
         fi
-        
+
+        # we'll capture the exit code of the actual command
+        exit_code=0
+
         # Use "runuser" if this exists.  runuser should be used on RedHat in preference to su.
         #
         if test -f "/sbin/runuser"
@@ -575,6 +578,7 @@ checkUser() {
 	        # CHANGE: Changed from wrapper script: Added -s "/bin/sh" to force the script type
             su - $RUN_AS_USER -s "/bin/sh" -c "\"$REALPATH\" $ADDITIONAL_PARA"
         fi
+        exit_code=$?
 
         # Now that we are the original user again, we may need to clean up the lock file.
         if [ "X$LOCKPROP" != "X" ]
@@ -590,7 +594,7 @@ checkUser() {
             fi
         fi
 
-        exit 0
+        exit $exit_code
     fi
 }
 

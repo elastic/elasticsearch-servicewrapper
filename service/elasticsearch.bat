@@ -21,6 +21,9 @@ rem _PASS_THROUGH tells the script to pass all arguments through to the JVM
 rem  as is.
 rem set _PASS_THROUGH=true
 
+rem Do not modify anything beyond this point
+rem -----------------------------------------------------------------------------
+
 rem
 rem Resolve the real path of the wrapper.exe
 rem  For non NT systems, the _REALPATH and _WRAPPER_CONF values

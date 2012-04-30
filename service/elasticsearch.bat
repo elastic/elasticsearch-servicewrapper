@@ -15,7 +15,7 @@ set _WRAPPER_BASE=\exec\elasticsearch
 
 rem The name and location of the Wrapper configuration file.
 rem  (Do not remove quotes.)
-set _WRAPPER_CONF="..\elasticsearch.conf"
+set _WRAPPER_CONF_DEFAULT="..\elasticsearch.conf"
 
 rem _PASS_THROUGH tells the script to pass all arguments through to the JVM
 rem  as is.

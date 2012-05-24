@@ -20,7 +20,7 @@ done
 ES_HOME=`dirname "$SCRIPT"`/../..
 
 # make ELASTICSEARCH_HOME absolute
-export ES_HOME=`cd $ES_HOME; pwd`
+export ES_HOME=`cd $ES_HOME; pwd -P`
 
 
 # Application

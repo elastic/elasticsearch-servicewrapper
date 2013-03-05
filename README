@@ -1,1 +1,2 @@
-A service wrapper execution for elasticsearch using http://wrapper.tanukisoftware.org/. Simple place the `service` under elasticsearch `bin` directory.
+A service wrapper execution for elasticsearch using http://wrapper.tanukisoftware.org/. 
+Simply place the `service` under elasticsearch `bin` directory.

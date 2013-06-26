@@ -1056,8 +1056,8 @@ installdaemon() {
                 ln -s "/etc/init.d/$APP_NAME" "/etc/rc3.d/S20$APP_NAME_LOWER"
             fi
         elif [ "$DIST_OS" = "linux" ] ; then
-            if [ -f /etc/redhat-release -o -f /etc/redhat_version -o -f /etc/fedora-release ]  ; then
-                eval echo `gettext 'Detected RHEL or Fedora:'`                  
+            if [ -f /etc/redhat-release -o -f /etc/redhat_version -o -f /etc/fedora-release -o -f /etc/system-release ]  ; then
+                eval echo `gettext 'Detected RHEL or Fedora or Amazon Linux:'`                  
                 if [ -f "/etc/init.d/$APP_NAME" -o -f "/etc/init/${APP_NAME}.conf" ] ; then
                     eval echo `gettext ' The $APP_LONG_NAME daemon is already installed.'`
                     exit 1
@@ -1249,8 +1249,8 @@ removedaemon() {
                 exit 1
             fi
         elif [ "$DIST_OS" = "linux" ] ; then
-            if [ -f /etc/redhat-release -o -f /etc/redhat_version -o -f /etc/fedora-release ] ; then
-                eval echo `gettext 'Detected RHEL or Fedora:'`
+            if [ -f /etc/redhat-release -o -f /etc/redhat_version -o -f /etc/fedora-release -o -f /etc/system-release ] ; then
+                eval echo `gettext 'Detected RHEL or Fedora or Amazon Linux:'`
                 if [ -f "/etc/init.d/$APP_NAME" ] ; then
                     stopit "0"
                     eval echo `gettext ' Removing $APP_LONG_NAME daemon...'`

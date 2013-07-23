@@ -35,3 +35,11 @@ The service uses Java Service Wrapper which is a small native wrapper around the
 Note, passing JVM level configuration (such as -X parameters) should be set within the `elasticsearch.conf` file.
 
 The `ES_HEAP_SIZE` environment variable controls the maximum memory allocation for the JVM (set in megabytes). It defaults to `1024`.
+
+## Running on 64-bit Windows
+
+This requires a commercial license for Java Service Wrapper. Licenses are bound to a specific machine, so make sure you send the correct host id when ordering the license.
+
+Once you have your license information, paste the extra wrapper.license.* lines into the `elasticsearch.conf` file. Then download the corresponding windows x86 64 bit build of the JSW.
+
+Copy `bin\wrapper.exe` to `bin\service\exec\elasticsearch-windows-x86-64.exe`, and `lib\wrapper.dll` and `lib\wrapper.jar` to `bin\service\lib` in your elasticsearch directory. Also make sure you have a 64-bit JRE installed. The service can then be installed and started as described above.

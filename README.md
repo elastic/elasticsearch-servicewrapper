@@ -3,7 +3,7 @@ A service wrapper execution for elasticsearch using [Java Service Wrapper](http:
 Installation guide
 ==================
 
-Simply place the `service` directory under the elasticsearch `bin` directory and edit the `elasticsearch.conf` file to point to the correct elasticsearch home path.
+Simply edit the `elasticsearch.conf` file to point to the correct elasticsearch home path.
 
 ElasticSearch can be run as a service using the `elasticsearch` script located under `bin/service` location. The script accepts a single parameter with the following values:
 
@@ -47,4 +47,4 @@ This requires a commercial license for Java Service Wrapper. Licenses are bound 
 
 Once you have your license information, paste the extra `wrapper.license.*` lines into the `elasticsearch.conf` file. Then download the corresponding windows x86 64 bit build of the JSW.
 
-Copy `bin\wrapper.exe` to `bin\service\exec\elasticsearch-windows-x86-64.exe`, and `lib\wrapper.dll` and `lib\wrapper.jar` to `bin\service\lib` in your elasticsearch directory. Also make sure you have a 64-bit JRE installed. The service can then be installed and started as described above.
+Place the `service` directory under the elasticsearch `bin` directory. Copy `bin\wrapper.exe` to `bin\service\exec\elasticsearch-windows-x86-64.exe`, and `lib\wrapper.dll` and `lib\wrapper.jar` to `bin\service\lib` in your elasticsearch directory. Also make sure you have a 64-bit JRE installed. The service can then be installed and started as described above.

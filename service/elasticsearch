@@ -16,16 +16,16 @@ while [ -h "$SCRIPT" ] ; do
   fi
 done
 
-# determine elasticsearch home
-ES_HOME=`dirname "$SCRIPT"`/../..
+# locate JVM config file
+ES_JAVA_CONF=`dirname "$SCRIPT"`/elasticsearch.conf
 
-# make ELASTICSEARCH_HOME absolute
-export ES_HOME=`cd $ES_HOME; pwd`
+# get ELASTICSEARCH_HOME from JVM level config file
+export ES_HOME=`cd $(grep '^set\.default\.ES_HOME=' $ES_JAVA_CONF | cut -d '=' -f 2); pwd`
 
 
-# Application
-APP_NAME="elasticsearch"
-APP_LONG_NAME="ElasticSearch"
+# Use the same application name in JVM config
+APP_NAME="$(grep '^wrapper\.name=' $ES_JAVA_CONF | cut -d '=' -f 2)"
+APP_LONG_NAME="$(grep '^wrapper\.displayname=' $ES_JAVA_CONF | cut -d '=' -f 2)"
 
 # Wrapper
 WRAPPER_CMD="$ES_HOME/bin/service/exec/elasticsearch"

@@ -25,7 +25,7 @@ export ES_HOME=`cd $ES_HOME; pwd`
 
 # Application
 APP_NAME="elasticsearch"
-APP_LONG_NAME="ElasticSearch"
+APP_LONG_NAME="Elasticsearch"
 
 # Wrapper
 WRAPPER_CMD="$ES_HOME/bin/service/exec/elasticsearch"

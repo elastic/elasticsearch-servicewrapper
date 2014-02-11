@@ -3,6 +3,8 @@ A service wrapper execution for elasticsearch using [Java Service Wrapper](http:
 Installation guide
 ==================
 
+**Important**: If you want to use service wrapper with elasticsearch 0.90 (and below), you need to switch to the `0.90` branch of this repository and then follow the installation instructions.
+
 Simply place the `service` directory under the elasticsearch `bin` directory and edit the `elasticsearch.conf` file to point to the correct elasticsearch home path.
 
 ElasticSearch can be run as a service using the `elasticsearch` script located under `bin/service` location. The script accepts a single parameter with the following values:

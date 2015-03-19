@@ -57,9 +57,9 @@ PIDDIR="."
 #  initialization tasks and it may be desirable to wait a few seconds
 #  before returning.  For example, to delay the invocation of following
 #  startup scripts.  Setting WAIT_AFTER_STARTUP to a positive number will
-#  cause the start command to delay for the indicated period of time 
+#  cause the start command to delay for the indicated period of time
 #  (in seconds).
-# 
+#
 WAIT_AFTER_STARTUP=0
 
 # If set, wait for the wrapper to report that the daemon has started
@@ -104,13 +104,13 @@ PLIST_DOMAIN=org.tanukisoftware.wrapper
 #  appropriate for your application.  They should remain commented.
 # chkconfig: 2345 20 80
 # description: @app.long.name@
- 
+
 # Initialization block for the install_initd and remove_initd scripts used by
 #  SUSE linux distributions.
 ### BEGIN INIT INFO
 # Provides: @app.name@
 # Required-Start: $local_fs $network $syslog
-# Should-Start: 
+# Should-Start:
 # Required-Stop:
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
@@ -253,7 +253,7 @@ case "$DIST_OS" in
         # HP-UX needs the XPG4 version of ps (for -o args)
         DIST_OS="hpux"
         UNIX95=""
-        export UNIX95   
+        export UNIX95
         ;;
     'darwin')
         DIST_OS="macosx"
@@ -271,11 +271,24 @@ if [ "$DIST_OS" = "macosx" ]
 then
     OS_VER=`sw_vers | grep 'ProductVersion:' | grep -o '[0-9]*\.[0-9]*\.[0-9]*'`
     DIST_ARCH="universal"
-    if [[ "$OS_VER" < "10.5.0" ]]
+    OLD_LFS = $LFS
+    IFS=. VER_ARR=($OS_VER)
+    IFS=$OLD_LFS
+    if [[ ${VER_ARR[0]} -lt 10 ]]
     then
         DIST_BITS="32"
     else
-        DIST_BITS="64"
+        if [[ ${VER_ARR[0]} -eq 10 ]]
+        then
+            if [[ ${VER_ARR[1]} -lt 5 ]]
+            then
+                DIST_BITS="32"
+            else
+                DIST_BITS="64"
+            fi
+        else
+            DIST_BITS="64"
+        fi
     fi
     APP_PLIST_BASE=${PLIST_DOMAIN}.${APP_NAME}
     APP_PLIST=${APP_PLIST_BASE}.plist
@@ -336,7 +349,7 @@ else
                 DIST_BITS="64"
             else
                 DIST_BITS="32"
-            fi    
+            fi
             ;;
         'sun4u' | 'sparcv9' | 'sparc')
             DIST_ARCH="sparc"
@@ -377,7 +390,7 @@ fi
 
 gettext() {
     "$WRAPPER_CMD" --translate "$1" "$WRAPPER_CONF" 2>/dev/null
-    if [ $? != 0 ] ; then 
+    if [ $? != 0 ] ; then
         echo "$1"
     fi
 }
@@ -405,7 +418,7 @@ then
         chmod +x "$WRAPPER_TEST_CMD" 2>/dev/null
     fi
     if [ -x "$WRAPPER_TEST_CMD" ]
-    then 
+    then
         WRAPPER_CMD="$WRAPPER_TEST_CMD"
     else
         outputFile "$WRAPPER_TEST_CMD"
@@ -420,7 +433,7 @@ then
         chmod +x "$WRAPPER_TEST_CMD" 2>/dev/null
     fi
     if [ -x "$WRAPPER_TEST_CMD" ]
-    then 
+    then
         WRAPPER_CMD="$WRAPPER_TEST_CMD"
     else
         outputFile "$WRAPPER_TEST_CMD"
@@ -435,7 +448,7 @@ then
         chmod +x "$WRAPPER_TEST_CMD" 2>/dev/null
     fi
     if [ -x "$WRAPPER_TEST_CMD" ]
-    then 
+    then
         WRAPPER_CMD="$WRAPPER_TEST_CMD"
     else
         outputFile "$WRAPPER_TEST_CMD"
@@ -557,7 +570,7 @@ checkUser() {
         then
             if [ "X$1" != "X" ]
             then
-                # Resolve the primary group 
+                # Resolve the primary group
                 RUN_AS_GROUP=`groups $RUN_AS_USER | awk '{print $3}' | tail -1`
                 if [ "X$RUN_AS_GROUP" = "X" ]
                 then
@@ -630,7 +643,7 @@ getpid() {
                     'freebsd')
                         pidtest=`$PSEXE -p $pid -o args | tail -1`
                         if [ "X$pidtest" = "XCOMMAND" ]
-                        then 
+                        then
                             pidtest=""
                         fi
                         ;;
@@ -705,7 +718,7 @@ getstatus() {
     then
         STATUS="Unknown"
     fi
-    
+
     JAVASTATUS=
     if [ -f "$JAVASTATUSFILE" ]
     then
@@ -753,7 +766,7 @@ testpid() {
 
 launchdtrap() {
     stopit
-    exit 
+    exit
 }
 
 waitforwrapperstop() {
@@ -766,9 +779,9 @@ waitforwrapperstop() {
 
 launchinternal() {
     getpid
-    trap launchdtrap TERM 
+    trap launchdtrap TERM
     if [ "X$pid" = "X" ]
-    then 
+    then
         prepAdditionalParams "$@"
 
         # The string passed to eval must handles spaces in paths correctly.
@@ -806,7 +819,7 @@ console() {
 waitforjavastartup() {
     getstatus
     eval echo $ECHOOPT `gettext 'Waiting for $APP_LONG_NAME...'`
-    
+
     # Wait until the timeout or we have something besides Unknown.
     counter=15
     while [ "$JAVASTATUS" = "Unknown" -a $counter -gt 0 -a -n "$JAVASTATUS" ] ; do
@@ -815,8 +828,8 @@ waitforjavastartup() {
         getstatus
         counter=`expr $counter - 1`
     done
-    
-    if [ -n "$WAIT_FOR_STARTED_TIMEOUT" ] ; then 
+
+    if [ -n "$WAIT_FOR_STARTED_TIMEOUT" ] ; then
         counter=$WAIT_FOR_STARTED_TIMEOUT
     else
         counter=120
@@ -831,13 +844,13 @@ waitforjavastartup() {
         echo ""
     fi
 }
- 
+
 startwait() {
     if [ $WAIT_FOR_STARTED_STATUS = true ]
     then
         waitforjavastartup
     fi
-    # Sleep for a few seconds to allow for intialization if required 
+    # Sleep for a few seconds to allow for intialization if required
     #  then test to make sure we're still running.
     #
     i=0
@@ -857,7 +870,7 @@ startwait() {
         else
             eval echo `gettext ' running: PID:$pid'`
         fi
-    else 
+    else
         echo ""
     fi
 }
@@ -865,17 +878,17 @@ startwait() {
 macosxstart() {
     # The daemon has been installed.
     eval echo `gettext 'Starting $APP_LONG_NAME.  Detected Mac OSX and installed launchd daemon.'`
-    if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then       
+    if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then
         eval echo `gettext 'Must be root to perform this action.'`
         exit 1
     fi
-    
+
     getpid
     if [ "X$pid" != "X" ] ; then
         eval echo `gettext '$APP_LONG_NAME is already running.'`
         exit 1
     fi
-    
+
     # If the daemon was just installed, it may not be loaded.
     LOADED_PLIST=`launchctl list | grep ${APP_PLIST_BASE}`
     if [ "X${LOADED_PLIST}" = "X" ] ; then
@@ -886,26 +899,26 @@ macosxstart() {
     if [ "X$pid" == "X" ] ; then
         launchctl start ${APP_PLIST_BASE}
     fi
-    
+
     startwait
 }
 
 upstartstart() {
     # The daemon has been installed.
     eval echo `gettext 'Starting $APP_LONG_NAME.  Detected Linux and installed upstart.'`
-    if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then       
+    if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then
         eval echo `gettext 'Must be root to perform this action.'`
         exit 1
     fi
-    
+
     getpid
     if [ "X$pid" != "X" ] ; then
         eval echo `gettext '$APP_LONG_NAME is already running.'`
         exit 1
     fi
-    
+
     /sbin/start ${APP_NAME}
-        
+
     startwait
 }
 
@@ -923,13 +936,13 @@ start() {
         eval echo `gettext '$APP_LONG_NAME is already running.'`
         exit 1
     fi
-    
+
     startwait
 }
- 
+
 stopit() {
     # $1 exit if down flag
-    
+
     eval echo `gettext 'Stopping $APP_LONG_NAME...'`
     getpid
     if [ "X$pid" = "X" ]
@@ -994,7 +1007,7 @@ stopit() {
         fi
     fi
 }
- 
+
 pause() {
     eval echo `gettext 'Pausing $APP_LONG_NAME.'`
 }
@@ -1023,7 +1036,7 @@ status() {
 
 installUpstart() {
     eval echo `gettext ' Installing the $APP_LONG_NAME daemon using upstart..'`
-    if [ -f "${REALDIR}/${APP_NAME}.install" ] ; then 
+    if [ -f "${REALDIR}/${APP_NAME}.install" ] ; then
         eval echo `gettext ' a custom upstart conf file ${APP_NAME}.install found'`
         cp "${REALDIR}/${APP_NAME}.install" "/etc/init/${APP_NAME}.conf"
     else
@@ -1039,7 +1052,7 @@ installUpstart() {
 }
 
 installdaemon() {
-    if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then       
+    if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then
         eval echo `gettext 'Must be root to perform this action.'`
         exit 1
     else
@@ -1057,14 +1070,14 @@ installdaemon() {
             fi
         elif [ "$DIST_OS" = "linux" ] ; then
             if [ -f /etc/redhat-release -o -f /etc/redhat_version -o -f /etc/fedora-release ]  ; then
-                eval echo `gettext 'Detected RHEL or Fedora:'`                  
+                eval echo `gettext 'Detected RHEL or Fedora:'`
                 if [ -f "/etc/init.d/$APP_NAME" -o -f "/etc/init/${APP_NAME}.conf" ] ; then
                     eval echo `gettext ' The $APP_LONG_NAME daemon is already installed.'`
                     exit 1
                 else
                     if [ -n "$USE_UPSTART" -a -d "/etc/init" ] ; then
                         installUpstart
-                    else 
+                    else
                         eval echo `gettext ' Installing the $APP_LONG_NAME daemon..'`
                         ln -s "$REALPATH" "/etc/init.d/$APP_NAME"
                         /sbin/chkconfig --add "$APP_NAME"
@@ -1089,7 +1102,7 @@ installdaemon() {
                 else
                     if [ -n "$USE_UPSTART" -a -d "/etc/init" ] ; then
                         installUpstart
-                    else 
+                    else
                         eval echo `gettext ' Installing the $APP_LONG_NAME daemon using init.d..'`
                         ln -s "$REALPATH" "/etc/init.d/$APP_NAME"
                         update-rc.d "$APP_NAME" defaults
@@ -1109,8 +1122,8 @@ installdaemon() {
                     ln -s "/etc/init.d/$APP_NAME" "/etc/rc5.d/K20$APP_NAME_LOWER"
                 fi
             fi
-        elif [ "$DIST_OS" = "hpux" ] ; then     
-            eval echo `gettext 'Detected HP-UX:'`          
+        elif [ "$DIST_OS" = "hpux" ] ; then
+            eval echo `gettext 'Detected HP-UX:'`
             if [ -f "/sbin/init.d/$APP_NAME" ] ; then
                 eval echo `gettext ' The $APP_LONG_NAME daemon is already installed.'`
                 exit 1
@@ -1130,15 +1143,15 @@ installdaemon() {
                 exit 1
             else
                 eval echo `gettext ' Installing the $APP_LONG_NAME daemon..'`
-                if [ -n "`/usr/sbin/lsitab install_assist`" ] ; then 
+                if [ -n "`/usr/sbin/lsitab install_assist`" ] ; then
                     eval echo `gettext ' The task /usr/sbin/install_assist was found in the inittab, this might cause problems for all subsequent tasks to launch at this process is known to block the init task. Please make sure this task is not needed anymore and remove/deactivate it.'`
                 fi
                 /usr/bin/mkssys -s "$APP_NAME" -p "$REALPATH" -a "launchdinternal" -u 0 -f 9 -n 15 -S
                 /usr/sbin/mkitab "$APP_NAME":2:once:"/usr/bin/startsrc -s \"${APP_NAME}\" >/dev/console 2>&1"
-                
+
             fi
         elif [ "$DIST_OS" = "freebsd" ] ; then
-            eval echo `gettext 'Detected FreeBSD:'`                
+            eval echo `gettext 'Detected FreeBSD:'`
             if [ -f "/etc/rc.d/$APP_NAME" ] ; then
                 eval echo `gettext ' The $APP_LONG_NAME daemon is already installed.'`
                 exit 1
@@ -1230,7 +1243,7 @@ installdaemon() {
 }
 
 removedaemon() {
-    if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then       
+    if [ `id | sed 's/^uid=//;s/(.*$//'` != "0" ] ; then
         eval echo `gettext 'Must be root to perform this action.'`
         exit 1
     else
@@ -1332,7 +1345,7 @@ removedaemon() {
                 if [ -n "`/usr/sbin/lsitab $APP_NAME`" -o -n "`/usr/bin/lssrc -S -s $APP_NAME`" ] ; then
                     /usr/sbin/rmitab $APP_NAME
                     /usr/bin/rmssys -s $APP_NAME
-                fi                
+                fi
             else
                 eval echo `gettext ' The $APP_LONG_NAME daemon is not currently installed.'`
                 exit 1
@@ -1508,7 +1521,7 @@ docommand() {
             fi
             console "$@"
             ;;
-    
+
         'start')
             if [ "$DIST_OS" = "macosx" -a -f "/Library/LaunchDaemons/${APP_PLIST}" ] ; then
                 macosxstart
@@ -1522,12 +1535,12 @@ docommand() {
                 start "$@"
             fi
             ;;
-    
+
         'stop')
             checkUser "" "$COMMAND"
             stopit "0"
             ;;
-    
+
         'restart')
             checkUser touchlock "$COMMAND"
             if [ ! -n "$FIXED_COMMAND" ] ; then
@@ -1536,7 +1549,7 @@ docommand() {
             stopit "0"
             start "$@"
             ;;
-    
+
         'condrestart')
             checkUser touchlock "$COMMAND"
             if [ ! -n "$FIXED_COMMAND" ] ; then
@@ -1545,7 +1558,7 @@ docommand() {
             stopit "1"
             start "$@"
             ;;
-    
+
         'pause')
             if [ -n "$PAUSABLE" ]
             then
@@ -1554,7 +1567,7 @@ docommand() {
                 showUsage "$COMMAND"
             fi
             ;;
-    
+
         'resume')
             if [ -n "$PAUSABLE" ]
             then
@@ -1563,36 +1576,36 @@ docommand() {
                 showUsage "$COMMAND"
             fi
             ;;
-    
+
         'status')
             status
             ;;
-    
+
         'install')
             installdaemon
             ;;
-    
+
         'remove')
             removedaemon
             ;;
-    
+
         'dump')
             checkUser "" "$COMMAND"
             dump
             ;;
-    
+
         'start_msg')
             # Internal command called by launchd on HP-UX.
             checkUser "" "$COMMAND"
             startmsg
             ;;
-    
+
         'stop_msg')
             # Internal command called by launchd on HP-UX.
             checkUser "" "$COMMAND"
             stopmsg
             ;;
-    
+
         'launchdinternal' | 'upstartinternal')
             if [ ! "$DIST_OS" = "macosx" -o ! -f "/Library/LaunchDaemons/${APP_PLIST}" ] ; then
                 checkUser touchlock "$@"
@@ -1604,7 +1617,7 @@ docommand() {
             fi
             launchinternal "$@"
             ;;
-    
+
         *)
             showUsage "$COMMAND"
             ;;

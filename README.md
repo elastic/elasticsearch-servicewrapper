@@ -1,4 +1,4 @@
-** DEPRECATED **: The service wrapper is deprecated and not maintained, many of the features have been added to Elastisearch itself, and purpose built deb, rpm packages, as well as windows service, are avaialble.
+**DEPRECATED**: The service wrapper is deprecated and not maintained.  It no longer works with Elasticsearch 2.x.  Many of the features have been added to Elastisearch itself, and purpose built deb, rpm packages, as well as windows service, are avaialble.
 
 A service wrapper execution for elasticsearch using [Java Service Wrapper](http://wrapper.tanukisoftware.org/).
 

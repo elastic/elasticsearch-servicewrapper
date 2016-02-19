@@ -88,7 +88,7 @@ WAIT_FOR_STARTED_TIMEOUT=120
 
 # Specify the number of open files ulimit for the above user
 # recommended value: 32000
-#ULIMIT_N=
+ULIMIT_N=32000
 
 # By default we show a detailed usage block.  Uncomment to show brief usage.
 #BRIEF_USAGE=true
@@ -915,6 +915,12 @@ start() {
     if [ "X$pid" = "X" ]
     then
         prepAdditionalParams "$@"
+
+        # Set ulimit if specified.
+        if [ "X$ULIMIT_N" != "X" ]
+            then
+            ulimit -n $ULIMIT_N
+        fi
 
         # The string passed to eval must handles spaces in paths correctly.
         COMMAND_LINE="$CMDNICE \"$WRAPPER_CMD\" \"$WRAPPER_CONF\" wrapper.syslog.ident=\"$APP_NAME\" wrapper.pidfile=\"$PIDFILE\" wrapper.name=\"$APP_NAME\" wrapper.displayname=\"$APP_LONG_NAME\" wrapper.daemonize=TRUE $ANCHORPROP $IGNOREPROP $STATUSPROP $COMMANDPROP $LOCKPROP wrapper.script.version=3.5.14 $ADDITIONAL_PARA"

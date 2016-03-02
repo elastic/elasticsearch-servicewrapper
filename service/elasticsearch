@@ -1095,6 +1095,16 @@ installdaemon() {
                         update-rc.d "$APP_NAME" defaults
                     fi
                 fi
+	    elif [ -f /etc/gentoo-release ] ; then
+                eval echo  'Detected Gentoo:'
+                if [ -f "/etc/init.d/$APP_NAME" ] ; then
+                    eval echo  ' The $APP_LONG_NAME daemon is already installed.'
+                    exit 1
+                else
+                    eval echo  ' Installing the $APP_LONG_NAME daemon..'
+                    ln -s "$REALPATH" "/etc/init.d/$APP_NAME"
+                    rc-update add "$APP_NAME" default
+                fi
             else
                 eval echo `gettext 'Detected Linux:'`
                 if [ -f "/etc/init.d/$APP_NAME" ] ; then
@@ -1289,6 +1299,16 @@ removedaemon() {
                     rm "/etc/init/${APP_NAME}.conf"
                 else
                     eval echo `gettext ' The $APP_LONG_NAME daemon is not currently installed.'`
+                    exit 1
+                fi
+            elif [ -f /etc/gentoo-release ] ; then
+                eval echo  'Detected Gentoo:'
+                if [ -f "/etc/init.d/$APP_NAME" ] ; then
+                    eval echo  ' Removing $APP_LONG_NAME daemon...'
+                    rc-update del "$APP_NAME" default
+                    rm -f "/etc/init.d/$APP_NAME"
+                else
+                    eval echo  ' The $APP_LONG_NAME daemon is not currently installed.'
                     exit 1
                 fi
             else
